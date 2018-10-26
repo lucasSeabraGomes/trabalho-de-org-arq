@@ -1,14 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 void CriaIndiceParaArq(char[]);
+void unir(char[],char[]);
+struct indiceSec
+{
+    char campo[10];
+    char indice[60][30];
+};
 int main()
 {
     char nomeArq[15];
+    char nomeArq2[15];
     int escolha=-1;
     while(escolha!=0)
     {
-        printf("digite 0 caso sair:");
-        printf("digite 1 caso deseje criar um indice:");
+        printf("digite 0 caso sair;\n");
+        printf("digite 1 caso deseje criar um indice;\n");
+        printf("digite 2 caso deseje unir duas listas;\n");
         scanf("%d",&escolha);
         if(escolha==1)
         {
@@ -17,6 +25,14 @@ int main()
             printf("\nescreva o nome do arquivo para criar um indice\nobs:arquivos de texto sempre terminam em .txt mesmo nao explicito\n");
             scanf("%s",nomeArq);
             CriaIndiceParaArq(nomeArq);
+        }
+        if(escolha==2)
+        {
+            //abre a função de criar arquivo com nome digitado com parametro
+            //observação o arquivo deve estar na mesma pasta do binario
+            printf("\nescreva o nome dos arquivos para uni-los\nobs:arquivos de texto sempre terminam em .txt mesmo nao explicito\n");
+            scanf("%s",nomeArq);
+            unir(nomeArq,nomeArq2);
         }
     }
     return 0;
@@ -49,37 +65,43 @@ void CriaIndiceParaArq(char nomeArq[])
     scanf("%d",&tipo);
     if(tipo==1)
     {
+        int p;
         int i=0;
         int j;
-        char chavePrimaria[30][30];
+        char chavePrimaria[60][30];
         //abre pu cria um arquivo de indice primario para escrita
         FILE *fs;
         fs = fopen (index, "ab+");
         chavePrimaria[i][30]='\0';
         fread(chavePrimaria[i],sizeof(char),30,fp);
         //este  loop garante que todos os elementos da lista original estarão na lista de chaves
-        //loop que coloca apenas um numero x de elementos na memoria ram no caso o numero foi 30 mas pode ser aumentado de acordo com a disponibilidade de ram no computador
-        while(i<30&&(feof(fp) == 0))
+        //loop que coloca apenas um numero x de elementos na memoria ram no caso o numero foi 60 mas pode ser aumentado de acordo com a disponibilidade de ram no computador
+        while(i<60&&(feof(fp) == 0))
         {
             fseek(fp,(33*sizeof(char)),SEEK_CUR);
             fread(chavePrimaria[i],sizeof(char),30,fp);
             chavePrimaria[i][30]='\0';
-            printf("\nchave:%s \nPosiçao do 1 caracter no arquivo:%d\n",chavePrimaria[i],i*63);
-            if(i==29||(feof(fp) != 0))
-            {
-                //este loop escreve todos as chaves da string e suas respectivas posições no arquivo de indices.
-                for(j=0;j<=i;j++)
-                {
-                    fprintf(fs,"%s %d ",chavePrimaria[j],j*63);
-                }
-            }
             i++;
         }
+        //este loop escreve todos as chaves da string e suas respectivas posições no arquivo de indices.
+            for(j=0;j<=i;j++)
+            {
+                printf("\nchave:");
+                for(p=0;p<30;p++)
+                {
+                    printf("%c",chavePrimaria[j][p]);
+                    fprintf(fs,"%c",chavePrimaria[j][p]);
+                }
+                printf("%d",j*63);
+                fprintf(fs,"%d",j*63);
+            }
         system("PAUSE");
     }
     //neste if serão criados indices de chaves secundarias
     else if(tipo==2)
     {
+        char aux[30];
+        char aux2[10];
         int i=0;
         char index2[33];
         //gera um indice secundario de nome "index"+(nome do arquivo)+"sec" onde o + representa concatenação de strings
@@ -99,11 +121,30 @@ void CriaIndiceParaArq(char nomeArq[])
         //cria o arquivo de indice
         FILE *fs;
         fs = fopen (index2, "ab+");
-
+        struct indiceSec colocar[10];
+        //adiciona o primeiro elemento ao vetor de estruturas chaves secundarias.
+        fread(colocar[0].indice[0],sizeof(char),30,fp);
+        colocar[0].indice[0][30]='\0';
+        fseek(fp,(22*sizeof(char)),SEEK_CUR);
+        fscanf(fp,"%s",colocar[0].campo);
+        while(feof(fp) == 0)
+        {
+            fseek(fp,(9*sizeof(char)),SEEK_CUR);
+            fread(aux,sizeof(char),30,fp);
+            aux[30]='\0';
+            printf("%s",aux);
+            fseek(fp,(22*sizeof(char)),SEEK_CUR);
+            fscanf(fp,"%s",aux2);
+        }
     }
+    //caso de digitarm um valor invalido no menu
     else
     {
         printf("pedido invalido");
         return;
     }
+};
+void unir(char arq[],char arq2[])
+{
+
 };
