@@ -100,9 +100,13 @@ void CriaIndiceParaArq(char nomeArq[])
     //neste if serão criados indices de chaves secundarias
     else if(tipo==2)
     {
+        int p;
         char aux[30];
         char aux2[10];
         int i=0;
+        int cont;
+        int j;
+        int z;
         char index2[33];
         //gera um indice secundario de nome "index"+(nome do arquivo)+"sec" onde o + representa concatenação de strings
         while(index[i]!='\0')
@@ -122,19 +126,81 @@ void CriaIndiceParaArq(char nomeArq[])
         FILE *fs;
         fs = fopen (index2, "ab+");
         struct indiceSec colocar[10];
+        //loop para inicializae a estrutura do indice como \0 na coluna de curso
+        while(i<10)
+        {
+            for(j=0;j<10;j++)
+            {
+                colocar[i].campo[j]='\0';
+                for(p=0;p<60;p++)
+                {
+                    colocar[i].indice[p][0]='\0';
+                }
+            }
+            i++;
+        }
         //adiciona o primeiro elemento ao vetor de estruturas chaves secundarias.
         fread(colocar[0].indice[0],sizeof(char),30,fp);
         colocar[0].indice[0][30]='\0';
         fseek(fp,(22*sizeof(char)),SEEK_CUR);
         fscanf(fp,"%s",colocar[0].campo);
+        //loop para pegar do arquivo os elementos para colocar na estrutura de indices secundarios
         while(feof(fp) == 0)
         {
+            i=0;
+            //neste ponto pega os dados do arquivo e coloca em strings auxiliares
             fseek(fp,(9*sizeof(char)),SEEK_CUR);
             fread(aux,sizeof(char),30,fp);
             aux[30]='\0';
-            printf("%s",aux);
             fseek(fp,(22*sizeof(char)),SEEK_CUR);
             fscanf(fp,"%s",aux2);
+            for(i=0;colocar[i].campo[0]!='\0';i++)
+            {
+                cont=0;
+                for(j=0;colocar[i].campo[j]!='\0';j++)
+                {
+                    if(colocar[i].campo[j]!=aux2[j])
+                    {
+                        cont++;
+                    }
+                }
+                if(cont==0)
+                {
+                    //este loop coloca no ultimo elemento do array de indices
+                    p=0;
+                    while(colocar[i].indice[p][0]!=0)
+                    {
+                        p++;
+                    }
+                    z=0;//
+                    while(z<30){
+                        colocar[i].indice[p][z]=aux[z];
+                        z++;
+                    }
+                    colocar[i].indice[p][30]='\0';
+                    break;
+                }
+            }
+            //caso de não existir nenhum membro do array de indices secundarios com o campo lido
+            if(cont!=0)
+            {
+                j=0;
+                while(aux2[j]!='\0')
+                {
+                    colocar[i].campo[j]=aux2[j];
+                    j++;
+                }
+                colocar[i].campo[j+1]='\0';
+                for(j=0;j<30;j++)
+                {
+                    colocar[i].indice[0][j]=aux[j];
+                }
+            }
+        }
+        for(i=0;colocar[i].campo[0]!='\0'&&i<10;i++)
+        {
+            printf("\nturma:%s\n alunos:\n",colocar[i].campo);
+            printf("%s\n",colocar[i].indice[0]);
         }
     }
     //caso de digitarm um valor invalido no menu
@@ -146,5 +212,7 @@ void CriaIndiceParaArq(char nomeArq[])
 };
 void unir(char arq[],char arq2[])
 {
+
+};
 
 };
