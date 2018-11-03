@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+void ordenaVetorIndices(char[][30],int[]);
+void swap(char [][30], int , int,int[]);
 void CriaIndiceParaArq(char[]);
 void unir(char[],char[]);
 void excluir(char[]);
+
 struct elementos
 {
     char curso[2];
@@ -57,6 +61,59 @@ int main()
     }
     return 0;
 }
+//função de ordenar vetore  se strings
+void ordenaVetorIndices(char v[][30],int* indices)
+{
+    int len = 0;
+    int j;
+    while(v[len][0]!='\0')
+    {
+        len++;
+    }
+    while(len>0)
+    {
+        for(j=0;j<len;j++)
+        {
+            if(compara(v[j],v[j+1])==1)
+            {
+                swap(v,j,j+1,indices);
+            }
+        }
+        len--;
+    }
+}
+int compara(char prim[30],char seg[30])
+{
+    int i=0;
+    while(prim[i]==seg[i]&&i<30)
+    {
+        i++;
+    }
+    if(prim[i]>seg[i])
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+void swap(char v[][30], int j, int aposJ,int*indices)
+{
+    char aux[30];
+    int aux2;
+    int i=0;
+    aux2=indices[j];
+    indices[j]=indices[aposJ];
+    indices[aposJ]=aux2;
+    while(i<30)
+    {
+        aux[i]=v[j][i];
+        v[j][i] = v[aposJ][i];
+        v[aposJ][i] = aux[i];
+        i++;
+    }
+}
 //função que cria um indice a partir de um arqivo txt formatado de acordo com as especificações de trabalho
 //ou seja tamanho fixo para todos os campos
 void CriaIndiceParaArq(char nomeArq[])
@@ -89,6 +146,7 @@ void CriaIndiceParaArq(char nomeArq[])
         int p;
         int i=0;
         int j;
+        int aux[60];
         char chavePrimaria[60][30];
         //abre pu cria um arquivo de indice primario para escrita
         FILE *fs;
@@ -104,8 +162,15 @@ void CriaIndiceParaArq(char nomeArq[])
             chavePrimaria[i][30]='\0';
             i++;
         }
-        //este loop escreve todos as chaves da string e suas respectivas posições no arquivo de indices.
             for(j=0;j<=i;j++)
+            {
+                aux[j]=j*63;
+            }
+            ordenaVetorIndices(chavePrimaria,aux);
+        //este loop escreve todos as chaves da string e suas respectivas posições no arquivo de indices.
+        printf("posicao do fim do arquivo:%i",aux[0]);
+        fprintf(fs,"%d ",aux[0]);
+            for(j=1;j<=i;j++)
             {
                 printf("\nchave:");
                 for(p=0;p<30;p++)
@@ -113,8 +178,8 @@ void CriaIndiceParaArq(char nomeArq[])
                     printf("%c",chavePrimaria[j][p]);
                     fprintf(fs,"%c",chavePrimaria[j][p]);
                 }
-                printf(" posicao do primeiro char%d",j*63);
-                fprintf(fs,"%d",j*63);
+                printf(" posicao do primeiro char%d",aux[j]);
+                fprintf(fs,"%d",aux[j]);
             }
         system("PAUSE");
     }
@@ -267,183 +332,240 @@ void CriaIndiceParaArq(char nomeArq[])
         return;
     }
 };
-void unir(char arq[],char arq2[])
+void unir(char arq1[],char arq2[])
 {
-    int z=0;
-    int n=0;
-    int i=0;
-    char indiceArq[27]="index";
-    char indiceSecArq[30];
-    for(z=0;indiceArq[z]!='\0';z++){};
-    for(n=0;arq[n]!='\0';n++)
-    {
-        indiceArq[z+n]=arq[n];
-    }
-    indiceArq[z+n+1]='\0';
-    //gera um indice secundario de nome "index"+(nome do arquivo)+"sec" onde o + representa concatenação de strings
-    while(indiceArq[i]!='\0')
-    {
-
-        indiceSecArq[i]=indiceArq[i];
-        i++;
-        if(indiceArq[i]=='\0')
-        {
-            indiceSecArq[i]='S';
-            indiceSecArq[i+1]='e';
-            indiceSecArq[i+2]='c';
-            indiceSecArq[i+3]='\0';
-        }
-    }
-    //verifica se o arquivo existe
+    char uniao[30];
+    printf("\ndigite o nome do arquivo gerado pela união:\nobs:sem caracteres especiais como acentos e espacos\n");
+    scanf("%s",uniao);
     FILE *fp1;
-    fp1 = fopen (arq, "r");
+    fp1 = fopen (arq1, "r");
     if (fp1 == NULL)
     {
-       printf ("Houve um erro ao abrir o %s\n",arq);
+       printf ("Houve um erro ao abrir o arquivo %s.\n",arq1);
        system("PAUSE");
        return;
     }
-    FILE *fc1;
-    fc1 = fopen (indiceArq, "r");
-    while (fc1 == NULL)
+    char index1[30]="index";
+    int z=0;
+    int n=0;
+    for(z=0;index1[z]!='\0';z++){};
+    for(n=0;arq1[n]!='\0';n++)
     {
-       printf ("Houve um erro ao abrir o indice de chaves primarias do arquivo %s\nvoce sera recirecionado para a criação de indices para criar um indice de chaves primarias.",arq);
-       CriaIndiceParaArq(arq);
-        fc1 = fopen (indiceArq, "r");
+        index1[z+n]=arq1[n];
     }
+    index1[z+n+1]='\0';
+    int i=0;
+    char index2[33];
+    char indiceSecArq1Base[37];
+    //gera um indice secundario de nome "index"+(nome do arquivo)+"sec" onde o + representa concatenação de strings
+    while(index1[i]!='\0')
+    {
+        indiceSecArq1Base[i]=index1[i];
+        index2[i]=index1[i];
+        i++;
+        if(index1[i]=='\0')
+        {
+            indiceSecArq1Base[i]='S';
+            indiceSecArq1Base[i+1]='e';
+            indiceSecArq1Base[i+2]='c';
+            index2[i]='S';
+            index2[i+1]='e';
+            index2[i+2]='c';
+            index2[i+3]='\0';
+        }
+    }
+    indiceSecArq1Base[i+3]='B';
+    indiceSecArq1Base[i+4]='a';
+    indiceSecArq1Base[i+5]='s';
+    indiceSecArq1Base[i+6]='e';
+    indiceSecArq1Base[i+7]='\0';
+    //cria o arquivo de indice
     FILE *fs1;
-    fs1 = fopen (indiceArq, "r");
-    while (fs1 == NULL)
+    fs1 = fopen (index2, "r");
+    while(fs1==NULL)
     {
-       printf ("Houve um erro ao abrir o indice de chaves secundarias do arquivo %s\nvoce sera recirecionado para a criação de indices para criar um indice de chaves secundarias.",arq);
-       CriaIndiceParaArq(arq);
-        fs1 = fopen (indiceSecArq, "r");
+        printf("o arquivo %s não possui indice secundario\n voce sera redirecionado para fazer um arquivo de indices secundarios\n",arq1);
+        CriaIndiceParaArq(arq1);
     }
+    FILE *fsb1;
+    fsb1 = fopen (indiceSecArq1Base, "r");
+    FILE *fip1;
+    fip1 = fopen (index2, "r");
+    while(fip1==NULL)
+    {
+        printf("o arquivo %s não possui indice primario\n voce sera redirecionado para fazer um arquivo de indices primarios\n",arq1);
+        CriaIndiceParaArq(arq1);
+    }
+
+    FILE *fp2;
+    fp2 = fopen (arq2, "r");
+    if (fp2 == NULL)
+    {
+       printf ("Houve um erro ao abrir o arquivo %s.\n",arq2);
+       system("PAUSE");
+       return;
+    }
+    char index12[30]="index";
     z=0;
     n=0;
-    i=0;
-    char indiceArq2[27]="index";
-    char indiceSecArq2[30];
-    for(z=0;indiceArq2[z]!='\0';z++){};
+    for(z=0;index12[z]!='\0';z++){};
     for(n=0;arq2[n]!='\0';n++)
     {
-        indiceArq2[z+n]=arq2[n];
+        index12[z+n]=arq2[n];
     }
-    indiceArq2[z+n+1]='\0';
+    index12[z+n+1]='\0';
+    i=0;
+    char index22[33];
+    char indiceSecArq2Base[37];
     //gera um indice secundario de nome "index"+(nome do arquivo)+"sec" onde o + representa concatenação de strings
-    while(indiceArq2[i]!='\0')
+    while(index12[i]!='\0')
     {
-
-        indiceSecArq2[i]=indiceArq2[i];
+        indiceSecArq2Base[i]=index12[i];
+        index22[i]=index12[i];
         i++;
-        if(indiceArq2[i]=='\0')
+        if(index12[i]=='\0')
         {
-            indiceSecArq2[i]='S';
-            indiceSecArq2[i+1]='e';
-            indiceSecArq2[i+2]='c';
-            indiceSecArq2[i+3]='\0';
+            indiceSecArq2Base[i]='S';
+            indiceSecArq2Base[i+1]='e';
+            indiceSecArq2Base[i+2]='c';
+            index22[i]='S';
+            index22[i+1]='e';
+            index22[i+2]='c';
+            index22[i+3]='\0';
         }
     }
-    FILE *fc2;
-    fc2 = fopen (indiceArq, "r");
-    while (fc2 == NULL)
-    {
-       printf ("Houve um erro ao abrir o indice de chaves primarias do arquivo %s\nvoce sera recirecionado para a criação de indices para criar um indice de chaves primarias.",arq2);
-       CriaIndiceParaArq(arq2);
-        fc2 = fopen (indiceArq2, "r");
-    }
+    indiceSecArq2Base[i+3]='B';
+    indiceSecArq2Base[i+4]='a';
+    indiceSecArq2Base[i+5]='s';
+    indiceSecArq2Base[i+6]='e';
+    indiceSecArq2Base[i+7]='\0';
+    //cria o arquivo de indice
     FILE *fs2;
-    fs2 = fopen (indiceArq2, "r");
-    while (fs2 == NULL)
+    fs2 = fopen (index22, "r");
+    while(fs2==NULL)
     {
-       printf ("Houve um erro ao abrir o indice de chaves secundarias do arquivo %s\nvoce sera recirecionado para a criação de indices para criar um indice de chaves secundarias.",arq2);
-       CriaIndiceParaArq(arq2);
-        fs2 = fopen (indiceSecArq2, "r");
+        printf("o arquivo %s não possui indice secundario\n voce sera redirecionado para fazer um arquivo de indices secundarios\n",arq2);
+        CriaIndiceParaArq(arq2);
     }
-    char uniao[20];
-    printf("\ndigite o nome desejado para o novo arquivo de uniao\n obs:tamanho maximo 20 caracters\n obs2:nao usar espaços, acentos ou cedilha\n");
-    scanf("%s",uniao);
-    char indiceUniao[27]="index";
-    char indiceSecUniao[30];
-    //gera uma string chamada index que vai conter o nome do indice primario da lista
+    FILE *fsb2;
+    fsb2 = fopen (indiceSecArq2Base, "r");
+    FILE *fip2;
+    fip2 = fopen (index22, "r");
+    while(fip2==NULL)
+    {
+        printf("o arquivo %s não possui indice primario\n voce sera redirecionado para fazer um arquivo de indices primarios\n",arq2);
+        CriaIndiceParaArq(arq2);
+    }
+
+    FILE *fpu;
+    fpu= fopen (uniao, "w");
+    char indexu[30]="index";
     z=0;
     n=0;
-    i=0;
-    for(z=0;indiceUniao[z]!='\0';z++){};
+    for(z=0;indexu[z]!='\0';z++){};
     for(n=0;uniao[n]!='\0';n++)
     {
-        indiceUniao[z+n]=uniao[n];
+        indexu[z+n]=uniao[n];
     }
-    indiceUniao[z+n+1]='\0';
+    indexu[z+n+1]='\0';
+    i=0;
+    char indexu2[33];
+    char indiceSecUniaoBase[37];
     //gera um indice secundario de nome "index"+(nome do arquivo)+"sec" onde o + representa concatenação de strings
-    while(indiceUniao[i]!='\0')
+    while(indexu[i]!='\0')
     {
-
-        indiceSecUniao[i]=indiceUniao[i];
+        indiceSecUniaoBase[i]=indexu[i];
+        indexu2[i]=indexu[i];
         i++;
-        if(indiceUniao[i]=='\0')
+        if(indexu[i]=='\0')
         {
-            indiceSecUniao[i]='S';
-            indiceSecUniao[i+1]='e';
-            indiceSecUniao[i+2]='c';
-            indiceSecUniao[i+3]='\0';
+            indiceSecUniaoBase[i]='S';
+            indiceSecUniaoBase[i+1]='e';
+            indiceSecUniaoBase[i+2]='c';
+            indexu2[i]='S';
+            indexu2[i+1]='e';
+            indexu2[i+2]='c';
+            indexu2[i+3]='\0';
         }
     }
+    indiceSecUniaoBase[i+3]='B';
+    indiceSecUniaoBase[i+4]='a';
+    indiceSecUniaoBase[i+5]='s';
+    indiceSecUniaoBase[i+6]='e';
+    indiceSecUniaoBase[i+7]='\0';
+    //cria o arquivo de indice
+    FILE *fsu;
+    fsu = fopen (indexu2, "w");
+    FILE *fsbu;
+    fsbu = fopen (indiceSecUniaoBase, "w");
+    FILE *fipu;
+    fipu = fopen (indexu2, "w");
+
 };
-void excluir(char arq[])
+void excluir(char arq1[])
 {
-    int z=0;
-    int n=0;
-    int i=0;
     int escolha;
-    char indiceArq[27]="index";
-    char indiceSecArq[30];
-    for(z=0;indiceArq[z]!='\0';z++){};
-    for(n=0;arq[n]!='\0';n++)
-    {
-        indiceArq[z+n]=arq[n];
-    }
-    indiceArq[z+n+1]='\0';
-    //gera um indice secundario de nome "index"+(nome do arquivo)+"sec" onde o + representa concatenação de strings
-    while(indiceArq[i]!='\0')
-    {
-
-        indiceSecArq[i]=indiceArq[i];
-        i++;
-        if(indiceArq[i]=='\0')
-        {
-            indiceSecArq[i]='S';
-            indiceSecArq[i+1]='e';
-            indiceSecArq[i+2]='c';
-            indiceSecArq[i+3]='\0';
-        }
-    }
-    //verifica se o arquivo existe
     FILE *fp1;
-    fp1 = fopen (arq, "r");
+    fp1 = fopen (arq1, "r");
     if (fp1 == NULL)
     {
-       printf ("Houve um erro ao abrir o %s\n",arq);
+       printf ("Houve um erro ao abrir o arquivo %s.\n",arq1);
        system("PAUSE");
        return;
     }
-    FILE *fc1;
-    fc1 = fopen (indiceArq, "r");
-    while (fc1 == NULL)
+    char index1[30]="index";
+    int z=0;
+    int n=0;
+    for(z=0;index1[z]!='\0';z++){};
+    for(n=0;arq1[n]!='\0';n++)
     {
-       printf ("Houve um erro ao abrir o indice de chaves primarias do arquivo %s\nvoce sera recirecionado para a criação de indices para criar um indice de chaves primarias.",arq);
-       CriaIndiceParaArq(arq);
-        fc1 = fopen (indiceArq, "r");
+        index1[z+n]=arq1[n];
     }
-    FILE *fs1;
-    fs1 = fopen (indiceArq, "r");
-    while (fs1 == NULL)
+    index1[z+n+1]='\0';
+    int i=0;
+    char index2[33];
+    char indiceSecArq1Base[37];
+    //gera um indice secundario de nome "index"+(nome do arquivo)+"sec" onde o + representa concatenação de strings
+    while(index1[i]!='\0')
     {
-       printf ("Houve um erro ao abrir o indice de chaves secundarias do arquivo %s\nvoce sera recirecionado para a criação de indices para criar um indice de chaves secundarias.",arq);
-       CriaIndiceParaArq(arq);
-        fs1 = fopen (indiceSecArq, "r");
+        indiceSecArq1Base[i]=index1[i];
+        index2[i]=index1[i];
+        i++;
+        if(index1[i]=='\0')
+        {
+            indiceSecArq1Base[i]='S';
+            indiceSecArq1Base[i+1]='e';
+            indiceSecArq1Base[i+2]='c';
+            index2[i]='S';
+            index2[i+1]='e';
+            index2[i+2]='c';
+            index2[i+3]='\0';
+        }
+    }
+    indiceSecArq1Base[i+3]='B';
+    indiceSecArq1Base[i+4]='a';
+    indiceSecArq1Base[i+5]='s';
+    indiceSecArq1Base[i+6]='e';
+    indiceSecArq1Base[i+7]='\0';
+    //cria o arquivo de indice
+    FILE *fs1;
+    fs1 = fopen (index2, "r");
+    while(fs1==NULL)
+    {
+        printf("o arquivo %s não possui indice secundario\n voce sera redirecionado para fazer um arquivo de indices secundarios\n",arq1);
+        CriaIndiceParaArq(arq1);
+    }
+    FILE *fsb1;
+    fsb1 = fopen (indiceSecArq1Base, "r");
+    FILE *fip1;
+    fip1 = fopen (index2, "r");
+    while(fip1==NULL)
+    {
+        printf("o arquivo %s não possui indice primario\n voce sera redirecionado para fazer um arquivo de indices primarios\n",arq1);
+        CriaIndiceParaArq(arq1);
     }
     printf("digite 1 para excluir baseado na matricula\ndigite 2 para excluir baseado no nome");
+    scanf("%i",&escolha);
     if(escolha==1)
     {
 
